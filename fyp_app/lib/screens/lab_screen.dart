@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fyp_app/screens/q1_journey_screen.dart';
 import 'package:fyp_app/app_state.dart';
+import 'package:fyp_app/screens/op_amp_simulator_screen.dart';
 
 class CircuitLabScreen extends StatefulWidget {
   const CircuitLabScreen({super.key});
@@ -16,9 +17,14 @@ class _CircuitLabScreenState extends State<CircuitLabScreen> {
   // 1 = Simulator
   int _selectedMode = 0;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+ @override
+Widget build(BuildContext context) {
+  return AnimatedBuilder(
+    // Rebuild this page whenever mastery / progress changes.
+    animation: appState,
+
+    builder: (context, child) {
+      return Scaffold(
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -80,15 +86,17 @@ class _CircuitLabScreenState extends State<CircuitLabScreen> {
             // If selectedMode is 0, show learning journeys.
             //
             // Otherwise, show simulator options.
-            if (_selectedMode == 0)
+                        if (_selectedMode == 0)
               _buildJourneySection()
             else
               _buildSimulatorSection(),
           ],
-        ),
-      ),
-    );
-  }
+        ), // closes ListView
+      ), // closes SafeArea
+    ); // closes Scaffold
+  }, // closes AnimatedBuilder builder
+); // closes AnimatedBuilder
+}
 
   // ============================================================
   // MODE BUTTON
@@ -146,7 +154,17 @@ class _CircuitLabScreenState extends State<CircuitLabScreen> {
         _buildJourneyCard(
           title: 'Q1 Mastery',
           subtitle: 'Circuit Fundamentals & Amplifiers',
-          progress: 0.50,
+          progress: appState.q1Mastery,
+
+          // Q1 is functional in the MVP.
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const Q1JourneyScreen(),
+              ),
+            );
+          },
         ),
 
         const SizedBox(height: 14),
@@ -154,15 +172,33 @@ class _CircuitLabScreenState extends State<CircuitLabScreen> {
         _buildJourneyCard(
           title: 'Q2 Mastery',
           subtitle: 'Transient & Switching Analysis',
-          progress: 0.25,
+          progress: appState.q2Mastery,
+
+          // Q2 will be developed after the interim MVP.
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Q2 Learning Journey coming soon.'),
+              ),
+            );
+          },
         ),
 
-        const SizedBox(height: 14),
+    const SizedBox(height: 14),
 
         _buildJourneyCard(
           title: 'Q3 Mastery',
           subtitle: 'AC & Network Analysis',
-          progress: 0.00,
+          progress: appState.q3Mastery,
+
+          // Q3 will be developed after the interim MVP.
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Q3 Learning Journey coming soon.'),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -185,14 +221,8 @@ class _CircuitLabScreenState extends State<CircuitLabScreen> {
     return Card(
       child: InkWell(
         // Later, tapping Q1 will open the Q1 Journey screen.
-        onTap: () {
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const Q1JourneyScreen(),
-          ),
-        );
-        },
+       // Run the action that was passed into this card.
+        onTap: onTap,
 
         borderRadius: BorderRadius.circular(12),
 
@@ -337,11 +367,16 @@ class _CircuitLabScreenState extends State<CircuitLabScreen> {
         // Only allow tapping if the simulator is available.
         //
         // null means the ListTile is disabled.
-        onTap: available
-            ? () {
-                // Later we will navigate to OpAmpSimulatorScreen.
-              }
-            : null,
+       onTap: available
+        ? () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const OpAmpSimulatorScreen(),
+              ),
+            );
+          }
+        : null,
       ),
     );
   }

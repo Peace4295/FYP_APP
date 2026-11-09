@@ -5,8 +5,15 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+Widget build(BuildContext context) {
+  return AnimatedBuilder(
+    // Listen to appState.
+    // Whenever appState calls notifyListeners(),
+    // this screen will rebuild automatically.
+    animation: appState,
+
+    builder: (context, child) {
+      return Scaffold(
       // SafeArea prevents content from going underneath
       // the phone notch / status bar.
       body: SafeArea(
@@ -74,19 +81,14 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
 
-                          const Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '5 day streak',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                '${appState.streak} day streak',
+                                style: const TextStyle( fontWeight: FontWeight.bold, ),
                               ),
-                              Text(
-                                'Keep it going!',
-                                style: TextStyle(fontSize: 12),
-                              ),
+                              Text( 'Keep it going!', style: const TextStyle(fontSize: 12), ),
                             ],
                           ),
                         ],
@@ -109,19 +111,11 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 10),
 
-                          const Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                '120 XP',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Great progress!',
-                                style: TextStyle(fontSize: 12),
-                              ),
+                              Text('${appState.xp} XP', style: const TextStyle( fontWeight: FontWeight.bold, ), ),
+                              Text('Great progress!', style: const TextStyle(fontSize: 12), ),
                             ],
                           ),
                         ],
@@ -196,15 +190,24 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.track_changes),
-                        SizedBox(width: 10),
+                        // Change the icon depending on whether today's goal is completed.
+                        Icon(
+                          appState.dailyGoalCompleted
+                              ? Icons.check_circle
+                              : Icons.track_changes,
 
-                        Expanded(
-                          child: Text(
-                            'Complete 1 lesson or practice question today!',
-                          ),
+                          // Make completed goal green.
+                          color: appState.dailyGoalCompleted
+                              ? Colors.green
+                              : null,
+                        ),
+
+                        const SizedBox(width: 10),
+
+                        const Expanded(
+                          child: Text( 'Complete 1 lesson or practice question today!', ),
                         ),
                       ],
                     ),
@@ -212,17 +215,22 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 14),
 
                     // 0.0 means 0%.
-                    const LinearProgressIndicator(
-                      value: 0.0,
+                    LinearProgressIndicator(
+                      //if the goal is completed, show 100%. otherwise show 0%
+                      value: appState.dailyGoalCompleted ? 1.0 : 0.0,
                     ),
 
                     const SizedBox(height: 8),
 
-                    const Align(
+                    Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        '0 / 1',
-                        style: TextStyle(fontSize: 12),
+                        appState.dailyGoalCompleted
+                            ? '1 / 1'
+                            : '0 / 1',
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ],
@@ -247,29 +255,23 @@ class HomeScreen extends StatelessWidget {
 
             // Instead of repeating the same code three times,
             // we use a helper function below.
-            _buildMasteryRow(
-              title: 'Q1 Mastery',
-              progress: 0.50,
-            ),
+            _buildMasteryRow( title: 'Q1 Mastery', progress: appState.q1Mastery, ),
 
             const SizedBox(height: 16),
 
-            _buildMasteryRow(
-              title: 'Q2 Mastery',
-              progress: 0.25,
-            ),
+           _buildMasteryRow( title: 'Q2 Mastery', progress: appState.q2Mastery, ),
 
             const SizedBox(height: 16),
 
-            _buildMasteryRow(
-              title: 'Q3 Mastery',
-              progress: 0.00,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+            _buildMasteryRow( title: 'Q3 Mastery', progress: appState.q3Mastery, ),
+
+          ], // closes children
+        ),   // closes ListView
+      ),     // closes SafeArea
+    );       // closes Scaffold
+  },         // closes AnimatedBuilder builder
+);           // closes AnimatedBuilder
+}
 
   // ----------------------------------------------------------
   // HELPER WIDGET
